@@ -9,6 +9,8 @@ let indexRouter = require("./routes/index");
 let usersRouter = require("./routes/users");
 
 let app = express();
+
+require("./config/database");
 app.use(cors());
 
 // view engine setup
