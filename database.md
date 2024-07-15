@@ -1,16 +1,16 @@
 This are all necessary collections for the MongoDB database used by RESERVER app
 
 USERS
-![alt text](image-3.png)
+![users collection](images/userDB.png)
 SERVICE PROVIDERS
-![alt text](image-4.png)
+![providers collection](images/providerDB.png)
 APPOINMENTS
-![alt text](image-5.png)
+![appointments collection](images/appointmentDB.png)
 SERVICES
-![alt text](image-6.png)
+![services collection](images/serviceDB.png)
 PAYMENTS
-![alt text](image-2.png)
+![payment collection](images/paymentDB.png)
 NOTIFICATIONS
-![alt text](image-1.png)
+![notification collection](images/notificationDB.png)
 MESSAGES
-![alt text](image.png)
+![messages collection](images/messageDB.png)
