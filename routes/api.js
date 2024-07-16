@@ -1,8 +1,18 @@
 const express = require("express");
 const router = express.Router();
 
-router.get("/", function (req, res, next) {
-  res.send("API endpoint");
-});
+const userRouter = require("./userRouter");
+const serviceProviderRouter = require("./serviceProviderRouter");
+const serviceRouter = require("./serviceRouter");
+const appointmentRouter = require("./appointmentRouter");
+const messageRouter = require("./messageRouter");
+const notificationRouter = require("./notificationRouter");
+
+router.use("/user", userRouter);
+router.use("/service-provider", serviceProviderRouter);
+router.use("/service", serviceRouter);
+router.use("/appointment", appointmentRouter);
+router.use("/message", messageRouter);
+router.use("/notification", notificationRouter);
 
 module.exports = router;
