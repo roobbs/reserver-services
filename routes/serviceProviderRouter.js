@@ -1,8 +1,11 @@
 const express = require("express");
 const router = express.Router();
+const ServiceProviderController = require("../controllers/serviceProviderController");
 
-router.get("/", function (req, res, next) {
-  res.send("service provider");
-});
+router.post("/", ServiceProviderController.createServiceProvider); // Crea un nuevo proveedor de servicios
+router.get("/", ServiceProviderController.getAllServiceProviders); // Obtiene todos los proveedores de servicios
+router.get("/:providerId", ServiceProviderController.getServiceProviderById); // Obtiene un proveedor de servicios por su ID
+router.put("/:providerId", ServiceProviderController.updateServiceProvider); // Actualiza un proveedor de servicios por su ID
+router.delete("/:providerId", ServiceProviderController.deleteServiceProvider); // Elimina un proveedor de servicios por su ID
 
 module.exports = router;
