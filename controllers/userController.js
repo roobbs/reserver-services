@@ -2,11 +2,65 @@ const User = require("../models/user");
 const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
-const issueJwt = require("../utils/issueJwt");
+const { issueJwt } = require("../utils/issueJwt");
 
-exports.signup = async (req, res) => {
-  res.send("Crear un nuevo usuario");
-};
+exports.signup = [
+  body("first_name", "First name must not be empty")
+    .trim()
+    .isLength({ min: 3 })
+    .escape(),
+  body("last_name", "Last name must not be empty")
+    .trim()
+    .isLength({ min: 3 })
+    .escape(),
+  body("email", "email must not be empty")
+    .trim()
+    .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
+    .escape(),
+  body("password")
+    .trim()
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters long")
+    .matches(/\d/)
+    .withMessage("Password must contain at least one number")
+    .matches(/[A-Z]/)
+    .withMessage("Password must contain at least one uppercase letter"),
+
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { first_name, last_name, email, password } = req.body;
+
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const newUser = new BlogUser({
+        first_name,
+        last_name,
+        email,
+        password: hashedPassword,
+      });
+
+      await newUser.save();
+
+      const jwt = issueJwt(newUser);
+
+      res.status(201).json({
+        success: true,
+        msg: "User created successfully",
+        user: newUser,
+        token: jwt.token,
+        expiresIn: jwt.expires,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }),
+];
 
 exports.login = async (req, res) => {
   const user = await User.findOne({ username: req.body.email });
