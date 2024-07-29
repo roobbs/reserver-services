@@ -4,12 +4,15 @@ let path = require("path");
 let cookieParser = require("cookie-parser");
 let logger = require("morgan");
 const cors = require("cors");
+const passport = require("passport");
 
 let indexRouter = require("./routes/index");
 let apiRouter = require("./routes/api");
 
 let app = express();
 require("./config/database");
+require("./config/passport")(passport);
+app.use(passport.initialize());
 app.use(cors());
 
 app.use(logger("dev"));
