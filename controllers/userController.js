@@ -72,7 +72,7 @@ exports.login = async (req, res) => {
   const isValid = await bcrypt.compare(req.body.password, user.password);
 
   if (isValid) {
-    const jwt = utils.issueJwt(user);
+    const jwt = issueJwt(user);
 
     res.status(201).json({
       success: true,
