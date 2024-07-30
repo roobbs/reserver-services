@@ -12,10 +12,23 @@ router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
   (req, res) => {
-    // const jwtToken = issueJwt(req.user);
-    // console.log(jwtToken);
-    res.send("google has redirect you");
-    // res.redirect(`http://localhost:3000?token=${jwtToken.token}`);
+    try {
+      if (!req.user) {
+        throw new Error("User not authenticated");
+      }
+
+      const jwt = issueJwt(req.user);
+
+      res.status(201).json({
+        success: true,
+        msg: "User logged in successfully with Google",
+        user: req.user,
+        token: jwt.token,
+        expiresIn: jwt.expires,
+      });
+    } catch (error) {
+      next(error);
+    }
   }
 );
 
