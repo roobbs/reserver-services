@@ -19,13 +19,17 @@ router.get(
 
       const jwt = issueJwt(req.user);
 
-      res.status(201).json({
-        success: true,
-        msg: "User logged in successfully with Google",
-        user: req.user,
-        token: jwt.token,
-        expiresIn: jwt.expires,
-      });
+      // res.status(201).json({
+      //   success: true,
+      //   msg: "User logged in successfully with Google",
+      //   user: req.user,
+      //   token: jwt.token,
+      //   expiresIn: jwt.expires,
+      // });
+
+      res.redirect(
+        `http://localhost:5173/auth?token=${jwt.token}&expiresIn=${jwt.expires}&user=${req.user}`
+      );
     } catch (error) {
       next(error);
     }
