@@ -38,7 +38,7 @@ exports.signup = [
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      const newUser = new BlogUser({
+      const newUser = new User({
         first_name,
         last_name,
         email,
@@ -63,7 +63,7 @@ exports.signup = [
 ];
 
 exports.login = async (req, res) => {
-  const user = await User.findOne({ username: req.body.email });
+  const user = await User.findOne({ email: req.body.email });
 
   if (!user) {
     res.status(401).json({ success: false, message: "Invalid email" });
