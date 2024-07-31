@@ -11,7 +11,7 @@ router.get(
 router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
-  (req, res) => {
+  (req, res, next) => {
     try {
       if (!req.user) {
         throw new Error("User not authenticated");
@@ -28,7 +28,9 @@ router.get(
       // });
 
       res.redirect(
-        `http://localhost:5173/auth?token=${jwt.token}&expiresIn=${jwt.expires}&user=${req.user}`
+        `http://localhost:5173/auth?token=${jwt.token}&expiresIn=${
+          jwt.expires
+        }&user=${JSON.stringify(req.user)}`
       );
     } catch (error) {
       next(error);
