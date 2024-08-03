@@ -86,9 +86,26 @@ exports.login = async (req, res) => {
   }
 };
 
-// Obtener un usuario por su ID
-exports.getUserById = async (req, res) => {
-  res.send("Obtener un usuario por su ID");
+// Actualizar el campo service_provider a true
+exports.updateUserServiceProvider = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    user.service_provider = true;
+    await user.save();
+
+    res
+      .status(200)
+      .json({ success: true, msg: "User updated successfully", user: user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error en el servidor" });
+  }
 };
 
 // Actualizar un usuario por su ID
