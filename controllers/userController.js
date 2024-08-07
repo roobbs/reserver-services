@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const ServiceProvider = require("../models/serviceProvider");
 const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
@@ -69,6 +70,8 @@ exports.login = async (req, res) => {
     res.status(401).json({ success: false, message: "Invalid email" });
   }
 
+  const business = await ServiceProvider.findOne({ userId: user._id });
+
   const isValid = await bcrypt.compare(req.body.password, user.password);
 
   if (isValid) {
@@ -78,6 +81,7 @@ exports.login = async (req, res) => {
       success: true,
       msg: "User logged in successfully",
       user: user,
+      business: business ? business : null,
       token: jwt.token,
       expiresIn: jwt.expires,
     });
@@ -86,27 +90,71 @@ exports.login = async (req, res) => {
   }
 };
 
-// Actualizar el campo service_provider a true
-exports.updateUserServiceProvider = async (req, res) => {
-  try {
-    const userId = req.params.userId;
+// Actualizar el campo service_provider a true y crear negocio
+exports.updateUserServiceProvider = [
+  body("name", "El nombre del negocio es obligatorio")
+    .trim()
+    .isLength({ min: 3 })
+    .escape(),
+  body("type", "El tipo de negocio es obligatorio")
+    .trim()
+    .isLength({ min: 3 })
+    .escape(),
+  body("description").optional().trim().escape(),
+  body("location").optional().trim().escape(),
+  body("contactInfo").optional().trim().escape(),
+  body("availability")
+    .optional()
+    .isArray()
+    .withMessage("La disponibilidad debe ser una lista de cadenas"),
 
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
+  asyncHandler(async (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
 
-    user.service_provider = true;
-    await user.save();
+    try {
+      const userId = req.params.userId;
 
-    res
-      .status(200)
-      .json({ success: true, msg: "User updated successfully", user: user });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error en el servidor" });
-  }
-};
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "Usuario no encontrado" });
+      }
+
+      // Actualizar el campo service_provider a true
+      user.service_provider = true;
+      await user.save();
+
+      // Crear el nuevo negocio
+      const { name, type, description, location, contactInfo, availability } =
+        req.body;
+
+      const newBusiness = new ServiceProvider({
+        userId: user._id,
+        name,
+        type,
+        description,
+        location,
+        contactInfo,
+        availability,
+      });
+
+      await newBusiness.save();
+
+      res.status(200).json({
+        success: true,
+        msg: "User updated successfully and business created",
+        user: user,
+        business: newBusiness,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Error en el servidor" });
+    }
+  }),
+];
 
 // Actualizar un usuario por su ID
 exports.updateUser = async (req, res) => {
