@@ -1,20 +1,70 @@
-// Importar el modelo de proveedor de servicios si es necesario
-// const ServiceProvider = require('../models/serviceProvider');
-
-// Crear un nuevo proveedor de servicios
-const createServiceProvider = async (req, res) => {
-  res.send("Crear un nuevo proveedor de servicios");
-};
+const ServiceProvider = require("../models/serviceProvider");
+const Service = require("../models/service");
+const asyncHandler = require("express-async-handler");
+const { body, validationResult } = require("express-validator");
 
 // Obtener todos los proveedores de servicios
 const getAllServiceProviders = async (req, res) => {
   res.send("Obtener todos los proveedores de servicios");
 };
 
-// Obtener un proveedor de servicios por su ID
-const getServiceProviderById = async (req, res) => {
-  res.send("Obtener un proveedor de servicios por su ID");
-};
+exports.createServiceForProvider = [
+  body("name", "El nombre del servicio es obligatorio")
+    .trim()
+    .isLength({ min: 3 })
+    .escape(),
+  body("description").optional().trim().escape(),
+  body("price", "El precio del servicio es obligatorio")
+    .isNumeric()
+    .withMessage("El precio debe ser un número")
+    .escape(),
+  body("duration", "La duración del servicio es obligatoria")
+    .isNumeric()
+    .withMessage("La duración debe ser un número")
+    .escape(),
+
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+      const { serviceProviderId } = req.params;
+      const { name, description, price, duration } = req.body;
+
+      const serviceProvider = await ServiceProvider.findById(serviceProviderId);
+
+      if (!serviceProvider) {
+        return res
+          .status(404)
+          .json({ message: "Proveedor de servicios no encontrado" });
+      }
+
+      const newService = new Service({
+        name,
+        description,
+        duration,
+        price,
+        providerId: serviceProviderId,
+      });
+
+      const savedService = await newService.save();
+
+      serviceProvider.servicesOffered.push(savedService._id);
+      await serviceProvider.save();
+
+      res.status(201).json({
+        msg: "Servicio creado y asociado con el proveedor de servicios exitosamente",
+        serviceProvider,
+      });
+    } catch (error) {
+      console.error("Error al crear el servicio:", error);
+      res.status(500).json({ message: "Error en el servidor" });
+    }
+  }),
+];
 
 // Actualizar un proveedor de servicios por su ID
 const updateServiceProvider = async (req, res) => {
@@ -27,9 +77,8 @@ const deleteServiceProvider = async (req, res) => {
 };
 
 module.exports = {
-  createServiceProvider,
+  createServiceForProvider,
   getAllServiceProviders,
-  getServiceProviderById,
   updateServiceProvider,
   deleteServiceProvider,
 };
