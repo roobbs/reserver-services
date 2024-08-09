@@ -8,7 +8,7 @@ const getAllServiceProviders = async (req, res) => {
   res.send("Obtener todos los proveedores de servicios");
 };
 
-exports.createServiceForProvider = [
+const createServiceForProvider = [
   body("name", "El nombre del servicio es obligatorio")
     .trim()
     .isLength({ min: 3 })
@@ -31,10 +31,10 @@ exports.createServiceForProvider = [
     }
 
     try {
-      const { serviceProviderId } = req.params;
+      const { providerId } = req.params;
       const { name, description, price, duration } = req.body;
 
-      const serviceProvider = await ServiceProvider.findById(serviceProviderId);
+      const serviceProvider = await ServiceProvider.findById(providerId);
 
       if (!serviceProvider) {
         return res
@@ -47,7 +47,7 @@ exports.createServiceForProvider = [
         description,
         duration,
         price,
-        providerId: serviceProviderId,
+        providerId,
       });
 
       const savedService = await newService.save();
@@ -55,9 +55,14 @@ exports.createServiceForProvider = [
       serviceProvider.servicesOffered.push(savedService._id);
       await serviceProvider.save();
 
+      const populatedServiceProvider = await ServiceProvider.findById(
+        providerId
+      ).populate("servicesOffered");
+
       res.status(201).json({
+        success: true,
         msg: "Servicio creado y asociado con el proveedor de servicios exitosamente",
-        serviceProvider,
+        provider: populatedServiceProvider,
       });
     } catch (error) {
       console.error("Error al crear el servicio:", error);
