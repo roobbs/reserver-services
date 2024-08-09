@@ -11,7 +11,7 @@ const notificationRouter = require("./notificationRouter");
 
 router.use("/user", userRouter);
 router.use("/auth", authRouter);
-router.use("/service-provider", serviceProviderRouter);
+router.use("/provider", serviceProviderRouter);
 router.use("/service", serviceRouter);
 router.use("/appointment", appointmentRouter);
 router.use("/message", messageRouter);
