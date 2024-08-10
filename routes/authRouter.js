@@ -28,10 +28,16 @@ router.get(
 
       const business = businessResponse ? businessResponse : null;
 
+      const businessesList = await ServiceProvider.find({
+        userId: { $ne: req.user._id },
+      }).populate("servicesOffered");
+
       res.redirect(
         `http://localhost:5173/auth?token=${jwt.token}&expiresIn=${
           jwt.expires
-        }&user=${JSON.stringify(req.user)}&business=${JSON.stringify(business)}`
+        }&user=${JSON.stringify(req.user)}&business=${JSON.stringify(
+          business
+        )}&businessesList=${JSON.stringify(businessesList)}`
       );
     } catch (error) {
       console.log(error);
