@@ -50,12 +50,18 @@ exports.signup = [
 
       const jwt = issueJwt(newUser);
 
+      const businessesList = await ServiceProvider.find({
+        userId: { $ne: req.user._id },
+      }).populate("servicesOffered");
+
       res.status(201).json({
         success: true,
         msg: "User created successfully",
         user: newUser,
         token: jwt.token,
         expiresIn: jwt.expires,
+        business: null,
+        businessesList,
       });
     } catch (error) {
       next(error);
@@ -79,6 +85,10 @@ exports.login = async (req, res) => {
   if (isValid) {
     const jwt = issueJwt(user);
 
+    const businessesList = await ServiceProvider.find({
+      userId: { $ne: req.user._id },
+    }).populate("servicesOffered");
+
     res.status(201).json({
       success: true,
       msg: "User logged in successfully",
@@ -86,6 +96,7 @@ exports.login = async (req, res) => {
       business: business ? business : null,
       token: jwt.token,
       expiresIn: jwt.expires,
+      businessesList,
     });
   } else {
     res.status(401).json({ success: false, message: "Invalid password" });
