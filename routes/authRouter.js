@@ -24,8 +24,8 @@ router.get(
 
       const businessResponse = await ServiceProvider.findOne({
         userId: req.user._id,
-      });
-      console.log("business response:" + businessResponse);
+      }).populate("servicesOffered");
+
       const business = businessResponse ? businessResponse : null;
 
       res.redirect(

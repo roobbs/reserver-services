@@ -70,7 +70,9 @@ exports.login = async (req, res) => {
     res.status(401).json({ success: false, message: "Invalid email" });
   }
 
-  const business = await ServiceProvider.findOne({ userId: user._id });
+  const business = await ServiceProvider.findOne({ userId: user._id }).populate(
+    "servicesOffered"
+  );
 
   const isValid = await bcrypt.compare(req.body.password, user.password);
 
