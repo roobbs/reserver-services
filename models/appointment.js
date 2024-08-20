@@ -15,7 +15,6 @@ const appointmentSchema = new Schema({
     enum: ["pending", "confirmed", "canceled", "completed"],
     default: "pending",
   },
-  notes: String,
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
