@@ -1,10 +1,42 @@
-// Importar el modelo de cita si es necesario
-// const Appointment = require('../models/appointment');
+const asyncHandler = require("express-async-handler");
+const { body, validationResult } = require("express-validator");
+const Appointment = require("../models/appointment");
 
-// Crear una nueva cita
-const createAppointment = async (req, res) => {
-  res.send("Crear una nueva cita");
-};
+const createAppointment = [
+  body("date", "La fecha es obligatoria").isISO8601().toDate(),
+
+  asyncHandler(async (req, res, next) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+      const { userId, serviceId, providerId } = req.params;
+      const { date } = req.body;
+
+      const newAppointment = new Appointment({
+        userId,
+        providerId,
+        serviceId,
+        date,
+        status: "pending",
+      });
+
+      const savedAppointment = await newAppointment.save();
+
+      res.status(201).json({
+        success: true,
+        msg: "New appointment added",
+        appointment: savedAppointment,
+      });
+    } catch (error) {
+      console.error("Error al crear la cita:", error);
+      res.status(500).json({ message: "Error en el servidor" });
+    }
+  }),
+];
 
 // Obtener todas las citas
 const getAllAppointments = async (req, res) => {
