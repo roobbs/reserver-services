@@ -13,15 +13,13 @@ const createAppointment = [
     }
 
     try {
-      const { userId, serviceId, providerId } = req.params;
-      const { date } = req.body;
+      const { date, userId, serviceId, providerId } = req.body;
 
       const newAppointment = new Appointment({
-        userId,
-        providerId,
-        serviceId,
         date,
-        status: "pending",
+        userId,
+        serviceId,
+        providerId,
       });
 
       const savedAppointment = await newAppointment.save();
