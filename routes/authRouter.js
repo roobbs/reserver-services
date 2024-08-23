@@ -29,7 +29,9 @@ router.get(
 
       const appointmentList = await Appointment.find({
         userId: req.user._id,
-      });
+      })
+        .populate("providerId")
+        .populate("serviceId");
 
       const business = businessResponse ? businessResponse : null;
 

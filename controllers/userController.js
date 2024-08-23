@@ -88,7 +88,9 @@ exports.login = async (req, res) => {
 
     const appointmentList = await Appointment.find({
       userId: user._id,
-    });
+    })
+      .populate("providerId")
+      .populate("serviceId");
 
     const businessesList = await ServiceProvider.find({
       userId: { $ne: user._id },
