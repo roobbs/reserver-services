@@ -2,14 +2,15 @@ const express = require("express");
 const passport = require("passport");
 const router = express.Router();
 const { issueJwt } = require("../utils/issueJwt");
-const ServiceProvider = require("../models/serviceProvider");
 const asyncHandler = require("express-async-handler");
+const ServiceProvider = require("../models/serviceProvider");
+const Appointment = require("../models/appointment");
 
 router.get(
   "/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
-// asyncHandler(async (req, res) => {
+
 router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
@@ -26,6 +27,10 @@ router.get(
         userId: req.user._id,
       }).populate("servicesOffered");
 
+      const appointmentList = await Appointment.find({
+        userId: req.user._id,
+      });
+
       const business = businessResponse ? businessResponse : null;
 
       const businessesList = await ServiceProvider.find({
@@ -37,7 +42,9 @@ router.get(
           jwt.expires
         }&user=${JSON.stringify(req.user)}&business=${JSON.stringify(
           business
-        )}&businessesList=${JSON.stringify(businessesList)}`
+        )}&businessesList=${JSON.stringify(
+          businessesList
+        )}&appointments=${JSON.stringify(appointmentList)}`
       );
     } catch (error) {
       console.log(error);
