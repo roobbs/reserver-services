@@ -13,10 +13,11 @@ const createAppointment = [
     }
 
     try {
-      const { date, userId, serviceId, providerId } = req.body;
+      const { date, time, userId, serviceId, providerId } = req.body;
 
       const newAppointment = new Appointment({
         date,
+        time,
         userId,
         serviceId,
         providerId,
