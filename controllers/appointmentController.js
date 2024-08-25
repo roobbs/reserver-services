@@ -25,10 +25,16 @@ const createAppointment = [
 
       const savedAppointment = await newAppointment.save();
 
+      const populatedAppointment = await Appointment.findById(
+        savedAppointment._id
+      )
+        .populate("serviceId")
+        .populate("providerId");
+
       res.status(201).json({
         success: true,
         msg: "New appointment added",
-        appointment: savedAppointment,
+        appointment: populatedAppointment,
       });
     } catch (error) {
       console.error("Error al crear la cita:", error);
