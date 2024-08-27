@@ -45,7 +45,7 @@ const createAppointment = [
 
 // Obtener todas las citas
 const getAllAppointments = async (req, res) => {
-  res.send("Obtener todas las citas");
+  res.send("Obtener una cita por su ID");
 };
 
 // Obtener una cita por su ID
@@ -53,10 +53,30 @@ const getAppointmentById = async (req, res) => {
   res.send("Obtener una cita por su ID");
 };
 
-// Actualizar una cita por su ID
-const updateAppointment = async (req, res) => {
-  res.send("Actualizar una cita por su ID");
-};
+// Actualizar una cita con status "canceled" por su ID
+const cancelAppointment = asyncHandler(async (req, res) => {
+  try {
+    const { appointmentId } = req.params;
+
+    const updatedAppointment = await Appointment.findByIdAndUpdate(
+      appointmentId,
+      { status: "canceled" },
+      { new: true } // Return updated document
+    );
+
+    if (!updatedAppointment) {
+      return res.status(404).json({ msg: "Cita no encontrada" });
+    }
+
+    res.status(200).json({
+      success: true,
+      msg: "Cita cancelada con éxito",
+    });
+  } catch (error) {
+    console.error("Error al cancelar la cita:", error);
+    res.status(500).json({ success: false, msg: "Error en el servidor" });
+  }
+});
 
 // Eliminar una cita por su ID
 const deleteAppointment = async (req, res) => {
@@ -67,6 +87,6 @@ module.exports = {
   createAppointment,
   getAllAppointments,
   getAppointmentById,
-  updateAppointment,
+  cancelAppointment,
   deleteAppointment,
 };
