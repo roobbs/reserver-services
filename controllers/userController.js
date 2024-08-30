@@ -52,7 +52,7 @@ exports.signup = [
       const jwt = issueJwt(newUser);
 
       const businessesList = await ServiceProvider.find({
-        userId: { $ne: req.user._id },
+        userId: { $ne: user._id },
       }).populate("servicesOffered");
 
       res.status(201).json({
