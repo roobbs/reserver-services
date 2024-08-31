@@ -16,11 +16,13 @@
     "express": "~4.16.1",
     "express-async-handler": "^1.2.0",
     "express-validator": "^7.1.0",
+    "http": "^0.0.1-security",
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^9.0.2",
     "moongose": "^1.0.0",
     "morgan": "~1.9.1",
     "passport": "^0.7.0",
-    "passport-jwt": "^4.0.1"
+    "passport-jwt": "^4.0.1",
+    "socket.io": "^4.7.5"
   }
 }
