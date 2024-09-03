@@ -7,7 +7,7 @@ const createConversation = asyncHandler(async (req, res) => {
   if (!userId || !businessId) {
     return res
       .status(400)
-      .json({ message: "userId y businessId son requeridos." });
+      .json({ success: false, msg: "userId y businessId son requeridos." });
   }
 
   try {
@@ -18,8 +18,8 @@ const createConversation = asyncHandler(async (req, res) => {
 
     if (existingConversation) {
       return res.status(200).json({
-        message: "Conversación ya existe.",
-        conversation: existingConversation,
+        success: false,
+        message: "La conversación ya existe",
       });
     }
 
@@ -28,7 +28,11 @@ const createConversation = asyncHandler(async (req, res) => {
       business: businessId,
     });
 
-    const savedConversation = await newConversation.save();
+    await newConversation.save();
+
+    const savedConversation = await Conversation.findById(
+      newConversation._id
+    ).populate("business", "name");
 
     res.status(201).json({
       success: true,
