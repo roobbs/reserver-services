@@ -5,6 +5,7 @@ const { issueJwt } = require("../utils/issueJwt");
 const asyncHandler = require("express-async-handler");
 const ServiceProvider = require("../models/serviceProvider");
 const Appointment = require("../models/appointment");
+const Conversation = require("../models/conversation");
 
 router.get(
   "/google",
@@ -39,6 +40,10 @@ router.get(
         userId: { $ne: req.user._id },
       }).populate("servicesOffered");
 
+      const conversationList = await Conversation.find({
+        user: req.user._id,
+      }).populate("business", "name");
+
       res.redirect(
         `http://localhost:5173/auth?token=${jwt.token}&expiresIn=${
           jwt.expires
@@ -46,7 +51,9 @@ router.get(
           business
         )}&businessesList=${JSON.stringify(
           businessesList
-        )}&appointments=${JSON.stringify(appointmentList)}`
+        )}&appointments=${JSON.stringify(
+          appointmentList
+        )}&conversations=${JSON.stringify(conversationList)}`
       );
     } catch (error) {
       console.log(error);
