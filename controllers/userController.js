@@ -1,6 +1,7 @@
 const User = require("../models/user");
 const ServiceProvider = require("../models/serviceProvider");
 const Appointment = require("../models/appointment");
+const Conversation = require("../models/conversation");
 const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
@@ -96,6 +97,10 @@ exports.login = async (req, res) => {
       userId: { $ne: user._id },
     }).populate("servicesOffered");
 
+    const conversationList = await Conversation.find({
+      user: user._id,
+    }).populate("business", "name");
+
     res.status(201).json({
       success: true,
       msg: "User logged in successfully",
@@ -105,6 +110,7 @@ exports.login = async (req, res) => {
       expiresIn: jwt.expires,
       businessesList,
       appointmentList,
+      conversationList,
     });
   } else {
     res.status(401).json({ success: false, message: "Invalid password" });
