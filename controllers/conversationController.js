@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const Conversation = require("../models/conversation");
+const Message = require("../models/message");
 
 const createConversation = asyncHandler(async (req, res) => {
   const { userId, businessId } = req.body;
@@ -47,6 +48,41 @@ const createConversation = asyncHandler(async (req, res) => {
   }
 });
 
+const getMessagesFromConversation = asyncHandler(async (req, res) => {
+  const { conversationId } = req.params;
+
+  if (!conversationId) {
+    return res
+      .status(400)
+      .json({ message: "El ID de la conversación es requerido." });
+  } else {
+    try {
+      const conversation = await Conversation.findById(conversationId);
+      if (!conversation) {
+        return res.status(404).json({ message: "Conversación no encontrada." });
+      }
+
+      if (conversation) {
+        const messages = await Message.find({ conversationId }).sort({
+          createdAt: 1,
+        });
+
+        res.status(200).json({
+          succes: true,
+          msg: "Mensaes encontrados",
+          messages: messages,
+        });
+      }
+    } catch (error) {
+      res.status(500).json({
+        message: "Error al obtener los mensajes de la conversación.",
+        error: error,
+      });
+    }
+  }
+});
+
 module.exports = {
   createConversation,
+  getMessagesFromConversation,
 };
