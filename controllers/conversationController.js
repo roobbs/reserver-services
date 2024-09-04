@@ -21,24 +21,24 @@ const createConversation = asyncHandler(async (req, res) => {
         success: false,
         message: "La conversación ya existe",
       });
+    } else {
+      const newConversation = new Conversation({
+        user: userId,
+        business: businessId,
+      });
+
+      await newConversation.save();
+
+      const savedConversation = await Conversation.findById(
+        newConversation._id
+      ).populate("business", "name");
+
+      res.status(201).json({
+        success: true,
+        msg: "Conversación creada exitosamente.",
+        conversation: savedConversation,
+      });
     }
-
-    const newConversation = new Conversation({
-      user: userId,
-      business: businessId,
-    });
-
-    await newConversation.save();
-
-    const savedConversation = await Conversation.findById(
-      newConversation._id
-    ).populate("business", "name");
-
-    res.status(201).json({
-      success: true,
-      msg: "Conversación creada exitosamente.",
-      conversation: savedConversation,
-    });
   } catch (error) {
     res.status(500).json({
       message: "Error al crear la conversación.",
