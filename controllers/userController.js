@@ -82,7 +82,18 @@ exports.login = async (req, res) => {
     "servicesOffered"
   );
 
-  const isValid = await bcrypt.compare(req.body.password, user.password);
+  let businessConversations = null;
+  if (business) {
+    searchConversations = await Conversation.find({
+      business: business._id,
+    })
+      .populate("business", "name")
+      .populate("user", "first_name");
+
+    businessConversations = searchConversations ? searchConversations : null;
+  }
+
+  const isValid = bcrypt.compare(req.body.password, user.password);
 
   if (isValid) {
     const jwt = issueJwt(user);
@@ -99,13 +110,16 @@ exports.login = async (req, res) => {
 
     const conversationList = await Conversation.find({
       user: user._id,
-    }).populate("business", "name");
+    })
+      .populate("business", "name")
+      .populate("user", "first_name");
 
     res.status(201).json({
       success: true,
       msg: "User logged in successfully",
       user: user,
       business: business ? business : null,
+      businessConversations,
       token: jwt.token,
       expiresIn: jwt.expires,
       businessesList,
