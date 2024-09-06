@@ -35,6 +35,17 @@ router.get(
         .populate("serviceId");
 
       const business = businessResponse ? businessResponse : null;
+      let businessConversations = null;
+      if (business) {
+        searchConversations = await Conversation.find({
+          business: business._id,
+        })
+          .populate("business", "name")
+          .populate("user", "first_name");
+        businessConversations = searchConversations
+          ? searchConversations
+          : null;
+      }
 
       const businessesList = await ServiceProvider.find({
         userId: { $ne: req.user._id },
@@ -42,7 +53,9 @@ router.get(
 
       const conversationList = await Conversation.find({
         user: req.user._id,
-      }).populate("business", "name");
+      })
+        .populate("business", "name")
+        .populate("user", "first_name");
 
       res.redirect(
         `http://localhost:5173/auth?token=${jwt.token}&expiresIn=${
@@ -53,7 +66,9 @@ router.get(
           businessesList
         )}&appointments=${JSON.stringify(
           appointmentList
-        )}&conversations=${JSON.stringify(conversationList)}`
+        )}&conversations=${JSON.stringify(
+          conversationList
+        )}&businessConversations=${JSON.stringify(businessConversations)}`
       );
     } catch (error) {
       console.log(error);
